@@ -66,37 +66,42 @@ f_start () {
 	fi
 }
 f_stop () {
+	counter=0
 	if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
 		## SENDING TERM SIGNAL.
 		echo -ne $"Stopping $prog Daemon: "	
 		pkill -TERM -u $userexec -f "$execpath $options"
 		
-		if [[ $k -ne 4 ]]; then
-			if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
-				echo -ne "\r\n ... Waiting for process to terminate."
-				sleep 4
+		while [[ $counter -le 4 ]]
+		do
+			if [[ $counter -ne 4 ]]; then
+				if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
+					echo -ne "\r\n ... Waiting for process to terminate."
+					(( counter++ ))
+					sleep 4
+				else
+					log_success_msg
+					break
+				fi
 			else
-				log_success_msg
-				break
+				log_failure_msg "Failed to terminated the process."
+				
+				## SENDING KILL SIGNAL.
+				echo -ne "Killing $prog Daemon: "
+				pkill -KILL -u $userexec -f "$execpath $options"
+				if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
+					log_failure_msg "Unable to KILL $prog Daemon."
+				else
+					log_success_msg
+					break
+				fi
 			fi
-		else
-			log_failure_msg "Failed to terminated the process."
-			
-			## SENDING KILL SIGNAL.
-			echo -ne "Killing $prog Daemon: "
-			pkill -KILL -u $userexec -f "$execpath $options"
-			if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
-				log_failure_msg "Unable to KILL $prog Daemon."
-			else
-				log_success_msg
-				break
-			fi
-		fi
 		done
 	else
-		echo "$prog Daemon doesn't seem to be running at this moment." 
+		echo "INFO: $prog Daemon doesn't seem to be running at this moment." 
 	fi	
 }
+
 f_status () {
 	status $execpath
 }
