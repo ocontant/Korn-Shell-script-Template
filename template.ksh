@@ -90,7 +90,6 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 # Function Definitions
 #
 # -----------------------------------------------------------------------------
-
 function f_get_parameter 
 {
   while getopts ":a:bDhvV" OPTION
@@ -132,8 +131,7 @@ function f_get_parameter
 #   log_success_msg - Print nice success message
 #
 # -----------------------------------------------------------------------------
-
-log_success_msg () {
+function log_success_msg {
    success "$*"; echo -e "\r\n"$*"\r\n"; 
 
 }
@@ -143,8 +141,7 @@ log_success_msg () {
 #   log_failure_msg - Print nice failure message
 #
 # -----------------------------------------------------------------------------
-
-log_failure_msg () {
+function log_failure_msg {
   failure "$*"; echo -e "\r\n"$*"\r\n";
 }
 
@@ -153,8 +150,7 @@ log_failure_msg () {
 #   log_warning_msg - Print nice warning message
 #
 # -----------------------------------------------------------------------------
-
-log_warning_msg () {
+function log_warning_msg {
    warning "$*"; echo -e "\r\n"$*"\r\n";
 }
 
