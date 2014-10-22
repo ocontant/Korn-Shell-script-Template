@@ -52,7 +52,7 @@ log_warning_msg () {
 }
 f_start () {
 	echo "start"
-	echo -n $"Starting EMS ${ems_inst[$i]} Daemon: "
+	echo -n $"Starting $prog Daemon: "
 	## Check if $prog is running
 	if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
 		log_failure_msg "$prog daemon is already running."
@@ -70,7 +70,7 @@ f_stop () {
 	if [[ `pgrep -u ${userexec} -f "${execpath} ${opts}"` ]]; then
 		## SENDING TERM SIGNAL.
 		echo -ne $"Stopping $prog Daemon: "	
-		pkill -TERM -u $userexec -f "$execpath $options"
+		pkill -TERM -u $userexec -f "$execpath $opts"
 		
 		while [[ $counter -le 4 ]]
 		do
