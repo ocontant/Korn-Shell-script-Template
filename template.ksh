@@ -1,13 +1,18 @@
-#!/bin/ksh
+#!/usr/bin/ksh
 ################################################################
 # Script to [template]
+#
 # Copyright (C) 2013 Olivier Contant - All Rights Reserved
 # Permission to copy and modify is granted
-# Last revised 2013/07/24
-
+#
+# https://github.com/ocontant 
+#
+# Last revised 2015/04/24
+#
+################################################################
 set -e # Stop and exit on error if not handled by the scripts
 
-#   
+#	
 # -----------------------------------------------------------------------------
 #
 #   usage - Display the program usage 
@@ -25,7 +30,7 @@ Usage: ${1##*/} [-?(a)(b)DvV]
 ** Where ( ) are mandatory options
 
   Where:
-    -D = Debug mode - Display special text for debugging purpose
+	-D = Debug mode - Display special text for debugging purpose
     -v = Verbose mode - displays your_function function info
     -V = Very Verbose Mode - debug output displayed
     -? = Help - display this message
@@ -53,74 +58,72 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 #### Products:
 #### 
 #### Provide a list of output your shell function produces,
-#### with a description of each product.
+#### with a description for each.
 #### 
 #### Configured Usage:
 #### 
 #### Describe how your shell function should be used.
 #### 
-#### Details:
-#### 
-#### Place nothing here, the details are your shell function.
 #### 
 ################################################################
 
 
-  typeset version="1.1"
-  typeset date=`date "+%Y-%m-%d"`
-  typeset scriptname=`basename $0`
-  typeset true="1"
-  typeset false="0"
-  typeset verbose="${false}"
-  typeset veryverb="${false}"
-  typeset debug="${false}"                  # Use with (( debug == true )) && echo "DEBUG TEXT"
-  typeset logfile                           # To define the location and filename of where we want to log the execution of this script
-  typeset errorfile                         # To define the location and filename of where we want to log the execution of this script
-  typeset pid=$$                            # The main process ID instance of our script
-  typeset rc                                # Return Command executing code handling
-  typeset tmpfile=${TMPDIR:-/tmp}/prog.$$   # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
-  typeset counter=0
+  typeset version="1.0"						# Increment this number with every new version
+  typeset date=`date "+%y-%m-%d"`			# Standard date: 2015-04-27
+  typeset scriptname=`basename $0`			# The file name of the script being called
+  typeset TRUE="1"							# Logical Bool aliases True
+  typeset FALSE="0"							# Logical Bool aliases False
+  typeset verbose="${false}"				# Define a level of verbosity for your script: Use with this syntaxe:  (( verbose == true )) && echo "verbose text"  OR [[ $verbose == true ]] && echo "verbose text"
+  typeset veryverb="${false}"				# Define a level of verbosity for your script: Use with this syntaxe:  (( veryverb == true )) && echo "very verbose text" OR [[ $veryverb == true ]] && echo "very verbose text"
+  typeset debug="${false}"					# Display debug informations:  Use with this syntaxe:  (( debug == true )) && echo "debug text" OR [[ $debug == true ]] && echo "debug text"
+  typeset logfile=""						# to define the location and filename of where we want to write the log of the execution of this script
+  typeset errorfile=""						# To define the location and filename of where we want to write the error log of the execution of this script
+  typeset PID=$$							# The main process ID instance of our script
+  typeset rc  								# Return Command executing code handling
+  typeset tmpfile="${TMPDIR:-/tmp}/prog.$$" # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
+  
   
   
  ### If we need logfile
- # exec >> $LOGFILE
+ # exec >> $logfile
  
 # -----------------------------------------------------------------------------
 #
 # Function Definitions
 #
 # -----------------------------------------------------------------------------
+
 function f_get_parameter 
 {
   while getopts ":a:bDhvV" OPTION
   do
       case "${OPTION}" in
-          #'a') required_optarg=${OPTARG};;
-          #'b') b_var="${true}";;
-          'D') debug="${true}";;
-          'h') usage ;;
-          'v') verbose="${true}";;
-          'V') veryverb="${true}";;
-          '?') f_usagemsg "${0}" && return 1 ;;
-          ':') f_usagemsg "${0}" && return 1 ;;
-          '#') f_usagemsg "${0}" && return 1 ;;
+		  'a') required_optarg=${OPTARG};;
+		  'b') b_var="${TRUE}";;
+		  'D') ${debug}="${TRUE}";;
+		  'h') usage ;;
+          'v') verbose="${TRUE}";;
+          'V') veryverb="${TRUE}";;
+          '?') usagemsg "${0}" && return 1 ;;
+          ':') usagemsg "${0}" && return 1 ;;
+          '#') usagemsg "${0}" && return 1 ;;
       esac
   done
    
   shift $(( ${OPTIND} - 1 ))
   
-    (( veryverb == true )) && set -x
-    (( verbose  == true )) && print -u 2 "# Version........: ${version}" && exit 0
+  	(( veryverb == TRUE )) && set -x
+	(( verbose  == TRUE )) && print -u 2 "# Version........: ${version}" && exit 0
+	
+  trap "f_usagemsg ${0}" EXIT
     
-  trap "usagemsg ${0}" EXIT
-    
-    #### Place any command line option error checking statements
-    #### here.  If an error is detected, print a message to
-    #### standard error, and return from this function with a
-    #### non-zero return code.  The "trap" statement will cause
-    #### the "usagemsg" to be displayed.
-    #### Ex.:  [[ -z $required_optarg || $required_optarg = -* ]] && f_error ERROR 125 " " && echo "-a value is: ${required_optarg}" && exit 125
-    
+	#### Place any command line option error checking statements
+	#### here.  If an error is detected, print a message to
+	#### standard error, and return from this function with a
+	#### non-zero return code.  The "trap" statement will cause
+	#### the "usagemsg" to be displayed.
+	#### Ex.:  [[ -z $required_optarg || $required_optarg = -* ]] && f_error ERROR 125 " " && echo "-a value is: ${required_optarg}" && exit 125
+	
   trap "-" EXIT  # Disable the trap for EXIT
   
   return 0
@@ -128,79 +131,7 @@ function f_get_parameter
 
 # -----------------------------------------------------------------------------
 #
-#   log_success_msg - Print nice success message
-#
-# -----------------------------------------------------------------------------
-function log_success_msg {
-   success "$*"; echo -e "\r\n"$*"\r\n"; 
-}
-
-# -----------------------------------------------------------------------------
-#
-#   log_failure_msg - Print nice failure message
-#
-# -----------------------------------------------------------------------------
-function log_failure_msg {
-  failure "$*"; echo -e "\r\n"$*"\r\n";
-}
-
-# -----------------------------------------------------------------------------
-#
-#   log_warning_msg - Print nice warning message
-#
-# -----------------------------------------------------------------------------
-function log_warning_msg {
-   warning "$*"; echo -e "\r\n"$*"\r\n";
-}
-
-# -----------------------------------------------------------------------------
-#
-#   f_kill - Kill process 
-#
-# -----------------------------------------------------------------------------
-function f_kill  #$1=killsig $2=pid
-{
-    killsig=$1
-    pid=$2  
-    counter=0
-    
-    if [[ `ps -p $pid` ]]; then
-        ## SENDING KILL SIGNAL.
-        echo -ne $"Stopping $SCRIPTNAME."   
-        kill -$killsig
-        
-        while [[ $counter -le 4 ]]
-        do
-            if [[ $counter -ne 4 ]]; then
-                if [[ `ps -p $pid` ]]; then
-                    echo -ne "\r\n ... Waiting for process to terminate."
-                    (( counter++ ))
-                    sleep 4
-                else
-                    log_success_msg
-                    break
-                fi
-            else
-                log_failure_msg "Failed to terminated the process."
-                
-                ## SENDING KILL SIGNAL.
-                echo -ne "Killing SIGKILL $scriptname."
-                kill -9 $pid
-                if [[ `ps -p $pid` ]]; then
-                    log_failure_msg "Unable to SIGKILL $scriptname."
-                else
-                    log_success_msg
-                    break
-                fi
-            fi
-        done
-    else
-        echo "INFO: $scriptname doesn't seem to be running at this moment. Cannot find PID." 
-    fi  
-}
-# -----------------------------------------------------------------------------
-#
-#   f_error - Print meaningful error messages
+#   Message - Print meaningful error messages
 #
 # -----------------------------------------------------------------------------
 function f_error #$1=errortype&errornum&message
@@ -211,75 +142,37 @@ function f_error #$1=errortype&errornum&message
     if [[ ! "$1" = "" ]];then
         errortype=$1; shift
         errornum=$1; shift
-        errormsg=$1; shift
+		errormsg=$1; shift
     fi
 
     echo ""
     echo "@@@@ $errortype: $errornum @@@@"
     ert="$dtg: $scriptname: $errortype"
     case $errornum in
-        000) erm="${ert}: Normal Termination ${errormsg}"
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT
-            exit 0;;
+        000) erm="${ert}: Normal Termination ${errormsg}";;
         001) erm="${ert}: Terminated by signal HUP";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT HUP
-            f_kill 'HUP' $pid;;
-        002) erm="${ert}: Terminated by signal INT";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT INT
-            kill -INT $pid;;
-        003) erm="${ert}: Terminated by signal QUIT";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT QUIT
-            f_kill 'QUIT' $pid;;
-        006) erm="${ert}: Terminated by signal SIGABRT";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            echo -n "Core Dump available:";
-            trap '-' EXIT SIGABRT
-            kill -SIGABRT $pid;;
-        011) erm="${ert}: Terminated by signal SIGSEGV";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            echo -n "Core Dump available:";
-            trap '-' EXIT SIGSEGV
-            kill -SIGSEGV $pid;;
-        015) erm="${ert}: Terminated by signal TERM";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT TERM
-            f_kill 'TERM' $pid;;
+			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
+			echo "$erm"
+			kill -HUP $PID;;
+		002) erm="${ert}: Terminated by signal INT";
+			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
+			echo "$erm"
+			kill -INT $PID;;
+		003) erm="${ert}: Terminated by signal QUIT";
+			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
+			echo "$erm"
+			kill -QUIT $PID;;
+	    015) erm="${ert}: Terminated by signal TERM";
+			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
+			echo "$erm"
+			kill -TERM $PID;;
         124) erm="${ert}: No command line arguments supplied";;
-        125) erm="${ert}: Invalid command line flag. ${ERRORMSG}";;
-        126) erm="${ert}: File or Directory $ERRORMSG doesn't exist!"; rc=1;;
-        127) erm="${ert}: Script exiting!";
-            [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-            echo "$erm"
-            echo "@@@@@@@@@@@@@@@@@@@@"
-            echo ""
-            trap '-' EXIT
-            exit;;
-            #f_kill 'EXIT' $PID;; ## Bug to fix, loop on exit
+        125) erm="${ert}: Invalid command line flag. ${errormsg}";;
+		126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
+		127) erm="${ert}: Script exiting!";
+			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
+			echo "$erm"
+			kill -TERM $PID;;
         *) erm="${ert}: Unallocated error ............$errornum";;
     esac
     echo ""
@@ -289,20 +182,26 @@ function f_error #$1=errortype&errornum&message
     echo ""
     echo ""
 
-    
-    ######## Example of usage of error function
-    ### 1. f_error INFO 000 (at end of script after normal execution
-    ###
-    ### 2. f_error ERROR 124
-    ###    usage
-    ###      exit 124
-    ###
-    ### 3. trap 'f_error ERRROR 001' HUP INT QUIT TERM
-    ###
-    ### Make sure when trapping exiting signal to kill the process also
-    ### [[ ! -z tmpfile ]] && rm -f ${tmpfile}
-    ### kill -[SIG_TRAPPED] $PID;;
-}   
+	
+	######## Example of usage of error function
+	### 1. This example should be included in all script at the very end to show a normal run exit message.
+	###    f_error INFO 000 (at end of script after normal execution
+	###
+	### 2. The following example is for ERROR type that doesn't exit in the f_error itself.
+	###	   f_error ERROR 124
+	###    usage
+	###  	 exit 124
+	###
+	### 3. The following examples are for the ERROR type that exit in the f_error itself
+	###    trap 'f_error ERROR 001' HUP
+	###	   trap 'f_error ERROR 002' INT
+	###	   trap 'f_error ERROR 003' QUIT
+	###    trap 'f_error ERROR 015' TERM
+	###
+	### Make sure when trapping exiting signal to kill the process also or the process will hang
+	### [[ ! -z tmpfile ]] && rm -f ${tmpfile}
+	###	kill -[SIG_TRAPPED] $PID;;
+}	
 
 
 # -----------------------------------------------------------------------------
@@ -312,45 +211,51 @@ function f_error #$1=errortype&errornum&message
 # -----------------------------------------------------------------------------
 
 ### Trapping exiting code ###
-trap 'f_error ERROR 001 HUP; trap - HUP' HUP
-trap 'f_error ERROR 002 INT; trap - INT' INT
-trap 'f_error ERROR 003 QUIT; trap - QUIT' QUIT
-trap 'f_error ERROR 006 SIGABRT; trap - SIGABRT' SIGABRT
-trap 'f_error ERROR 011 SIGSEGV; trap - SIGSEGV' SIGSEGV
-trap 'f_error ERROR 015 TERM; trap - TERM' TERM
-trap 'f_error ERROR 127 EXIT; trap - EXIT' EXIT
+trap 'f_error ERRROR 001 HUP' HUP 
+trap 'f_error ERRROR 002 INT' INT 
+trap 'f_error ERRROR 003 QUIT' QUIT
+trap 'f_error ERRROR 015 TERM' TERM
+# trap 'f_error EXITING 127 EXIT' EXIT 		## Generate too much garbage usually and loop. 
 
 
 # -----------------------------------------------------------------------------
 #
 #   LOADING OUR PARAMETER PARSER 
 #
-# ----------------------------------------------------------------------------- 
-
-##########################################
-### Pass our parameter and do validation #
-##########################################
+# -----------------------------------------------------------------------------	
 
 ### Validate if we have at least one parameter for our getops
 if [[ $# -eq 0 ]]
 then
-    f_error ERROR 124 "$#=0" # ERROR 124 No command line arguments supplied
-    f_usagemsg "${0}"
-    exit 124
-fi  
+	f_error ERROR 124 # ERROR 124 No command line arguments supplied
+	f_usagemsg "${0}"
+	exit 124
+fi	
 
 ### Pass our parameter and do validation 
 f_get_parameter "${@}"
+
+### Display some environment variable
+(( -f logfile )) && echo "Log will be written in ${logfile}"
+(( -f errorfile )) && echo "error log will be written in ${errorfile}"
+(( -f tmpfile )) && echo "tmpfile is located in ${tmpfile}"
+echo "The pid of this process is $$"
 
 
 # -----------------------------------------------------------------------------
 #
 #   THE REST OF THE ALGORYTHME GOES HERE  
 #
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------	
 
 
 
+# -----------------------------------------------------------------------------
+#
+#   If everything else ran successfully 
+#
+# -----------------------------------------------------------------------------	
+f_error INFO 000 "${scriptname} executed succesfully"
 
 
 
