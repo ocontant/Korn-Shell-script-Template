@@ -1,13 +1,13 @@
 #!/usr/bin/ksh
 ################################################################
-# Script to [template]
-#
+# Script to automate SCOAD activity
+
 # Copyright (C) 2013 Olivier Contant - All Rights Reserved
 # Permission to copy and modify is granted
 #
 # https://github.com/ocontant 
 #
-# Last revised 2015/04/24
+# Last revised 2015/05/04
 #
 ################################################################
 set -e # Stop and exit on error if not handled by the scripts
@@ -30,7 +30,7 @@ Usage: ${1##*/} [-?(a)(b)DvV]
 ** Where ( ) are mandatory options
 
   Where:
-	-D = Debug mode - Display special text for debugging purpose
+        -D = Debug mode - Display special text for debugging purpose
     -v = Verbose mode - displays your_function function info
     -V = Very Verbose Mode - debug output displayed
     -? = Help - display this message
@@ -39,6 +39,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 \"AutoContent\" enabled
 "
 }
+
 ################################################################
 #### 
 #### Description:
@@ -79,7 +80,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
   typeset logfile=""						# to define the location and filename of where we want to write the log of the execution of this script
   typeset errorfile=""						# To define the location and filename of where we want to write the error log of the execution of this script
   typeset PID=$$							# The main process ID instance of our script
-  typeset rc  								# Return Command executing code handling
+  typeset rc=""  								# Return Command executing code handling
   typeset tmpfile="${TMPDIR:-/tmp}/prog.$$" # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
   
   
@@ -98,15 +99,15 @@ function f_get_parameter
   while getopts ":a:bDhvV" OPTION
   do
       case "${OPTION}" in
-		  'a') required_optarg=${OPTARG};;
-		  'b') b_var="${TRUE}";;
-		  'D') ${debug}="${TRUE}";;
-		  'h') usage ;;
+	  'a') required_optarg=${OPTARG};;
+	  'b') b_var="${TRUE}";;
+	  'D') debug="${TRUE}";;
+	  'h') f_usagemsg ;;
           'v') verbose="${TRUE}";;
           'V') veryverb="${TRUE}";;
-          '?') usagemsg "${0}" && return 1 ;;
-          ':') usagemsg "${0}" && return 1 ;;
-          '#') usagemsg "${0}" && return 1 ;;
+          '?') f_usagemsg "${0}" && return 1 ;;
+          ':') f_usagemsg "${0}" && return 1 ;;
+          '#') f_usagemsg "${0}" && return 1 ;;
       esac
   done
    
@@ -115,18 +116,18 @@ function f_get_parameter
   	(( veryverb == TRUE )) && set -x
 	(( verbose  == TRUE )) && print -u 2 "# Version........: ${version}" && exit 0
 	
-  trap "f_usagemsg ${0}" EXIT
-    
-	#### Place any command line option error checking statements
-	#### here.  If an error is detected, print a message to
-	#### standard error, and return from this function with a
-	#### non-zero return code.  The "trap" statement will cause
-	#### the "usagemsg" to be displayed.
-	#### Ex.:  [[ -z $required_optarg || $required_optarg = -* ]] && f_error ERROR 125 " " && echo "-a value is: ${required_optarg}" && exit 125
-	
-  trap "-" EXIT  # Disable the trap for EXIT
-  
   return 0
+}
+
+# -----------------------------------------------------------------------------
+#
+#   Simple function to display separator character on the size of terminal width
+#
+# -----------------------------------------------------------------------------
+function f_print_separator 
+{
+        for i in `seq 1 79`;do printf '*'; done
+        printf '%s\n' "*"
 }
 
 # -----------------------------------------------------------------------------
@@ -137,48 +138,57 @@ function f_get_parameter
 function f_error #$1=errortype&errornum&message
 {
     # [[ ! -z "$debug" ]] && set -x
+
+    ### Feel free to add your own custom error message 
+    ### Don't forget to add a trap in next section for your custom error number
+
      
     dtg=`date +%D\ %H:%M:%S`
     if [[ ! "$1" = "" ]];then
         errortype=$1; shift
         errornum=$1; shift
-		errormsg=$1; shift
+	errormsg=$1; shift
     fi
 
     echo ""
-    echo "@@@@ $errortype: $errornum @@@@"
+    f_print_separator
+    echo ""
+    echo "$errortype: $errornum"
+    echo ""
+    f_print_separator
+
     ert="$dtg: $scriptname: $errortype"
     case $errornum in
         000) erm="${ert}: Normal Termination ${errormsg}";;
-        001) erm="${ert}: Terminated by signal HUP";
+        001) erm="${ert}: Terminated by signal HUP; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -HUP $PID;;
-		002) erm="${ert}: Terminated by signal INT";
+	002) erm="${ert}: Terminated by signal INT;${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -INT $PID;;
-		003) erm="${ert}: Terminated by signal QUIT";
+	003) erm="${ert}: Terminated by signal QUIT; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -QUIT $PID;;
-	    015) erm="${ert}: Terminated by signal TERM";
+	015) erm="${ert}: Terminated by signal TERM; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -TERM $PID;;
-        124) erm="${ert}: No command line arguments supplied";;
+        124) erm="${ert}: No Parameter found; ${errormsg}";;
         125) erm="${ert}: Invalid command line flag. ${errormsg}";;
-		126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
-		127) erm="${ert}: Script exiting!";
+	126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
+	127) erm="${ert}: Script exiting!";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -TERM $PID;;
-        *) erm="${ert}: Unallocated error ............$errornum";;
+        *) erm="${ert}: Unallocated error ............$errornum; ${errormsg}";;
     esac
     echo ""
     echo "$erm"
     echo ""
-    echo "@@@@@@@@@@@@@@@@@@@@"
+    f_print_separator
     echo ""
     echo ""
 
@@ -227,7 +237,7 @@ trap 'f_error ERRROR 015 TERM' TERM
 ### Validate if we have at least one parameter for our getops
 if [[ $# -eq 0 ]]
 then
-	f_error ERROR 124 # ERROR 124 No command line arguments supplied
+	f_error ERROR 124 "ERROR 124 No command line arguments supplied"
 	f_usagemsg "${0}"
 	exit 124
 fi	
@@ -235,11 +245,13 @@ fi
 ### Pass our parameter and do validation 
 f_get_parameter "${@}"
 
-### Display some environment variable
-(( -f logfile )) && echo "Log will be written in ${logfile}"
-(( -f errorfile )) && echo "error log will be written in ${errorfile}"
-(( -f tmpfile )) && echo "tmpfile is located in ${tmpfile}"
-echo "The pid of this process is $$"
+#
+#### Place any passed arguments error checking statements here
+#### If an error is detected, print a message to
+#### standard error.  Then exit with the error code 125 and display usagemsg
+####
+#### Ex.:  [[ -z $required_optarg ]] && f_error ERROR 125 "Description Error" && echo "-a value is: ${required_optarg}" && exit 125
+#
 
 
 # -----------------------------------------------------------------------------
@@ -248,6 +260,11 @@ echo "The pid of this process is $$"
 #
 # -----------------------------------------------------------------------------	
 
+### Display some environment variable
+[[ -f $logfile ]] && echo "Log will be written in ${logfile}"
+[[ -f $errorfile ]] && echo "error log will be written in ${errorfile}"
+[[ -f $tmpfile ]] && echo "tmpfile is located in ${tmpfile}"
+echo "The pid of this process is $$"
 
 
 # -----------------------------------------------------------------------------
