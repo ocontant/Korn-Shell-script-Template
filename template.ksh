@@ -142,7 +142,11 @@ function f_error #$1=errortype&errornum&message
     ### Feel free to add your own custom error message 
     ### Don't forget to add a trap in next section for your custom error number
 
-     
+    ### Logic is 
+    ###  - All error that are received by trap need to exit inside the function (case area) to simulate the normal behavior of an exiting
+    ###  - All error that are called directly in the code must do an exit after the function call. In order to have the 
+    ###    flexibility to create specific step before exiting the script.     
+
     dtg=`date +%D\ %H:%M:%S`
     if [[ ! "$1" = "" ]];then
         errortype=$1; shift
