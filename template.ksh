@@ -180,6 +180,7 @@ function f_error #$1=errortype&errornum&message
         125) erm="${ert}: Invalid command line flag. ${errormsg}";;
 	126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
 	127) erm="${ert}: Script exiting!";
+			trap '-' EXIT
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
 			kill -TERM $PID;;
