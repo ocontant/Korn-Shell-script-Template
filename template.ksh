@@ -167,23 +167,27 @@ function f_error #$1=errortype&errornum&message
         001) erm="${ert}: Terminated by signal HUP; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
+            trap '-' HUP
 			kill -HUP $PID;;
-	002) erm="${ert}: Terminated by signal INT;${errormsg}";
+	    002) erm="${ert}: Terminated by signal INT;${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
+            trap '-' INT
 			kill -INT $PID;;
-	003) erm="${ert}: Terminated by signal QUIT; ${errormsg}";
+	    003) erm="${ert}: Terminated by signal QUIT; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
+            trap '-' QUIT
 			kill -QUIT $PID;;
-	015) erm="${ert}: Terminated by signal TERM; ${errormsg}";
+	    015) erm="${ert}: Terminated by signal TERM; ${errormsg}";
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
+            trap '-' TERM
 			kill -TERM $PID;;
         124) erm="${ert}: No Parameter found; ${errormsg}";;
         125) erm="${ert}: Invalid command line flag. ${errormsg}";;
-	126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
-	127) erm="${ert}: Script exiting!";
+	    126) erm="${ert}: File or Directory $errormsg doesn't exist!"; rc=1;;
+	    127) erm="${ert}: Script exiting!";
 			trap '-' EXIT
 			[[ ! -z tmpfile ]] && rm -f ${tmpfile}
 			echo "$erm"
