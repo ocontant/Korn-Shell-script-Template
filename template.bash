@@ -14,7 +14,7 @@
 #
 # -----------------------------------------------------------------------------
 function f_usagemsg {
-  print "
+  printf "
 Program: your_function
 
 Place a brief description ( < 255 chars ) of your shell
@@ -220,29 +220,29 @@ function f_print_separator
         000) erm="${ert}: Normal Termination ${errormsg}"
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+   	    echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT
             exit 0;;
         001) erm="${ert}: Terminated by signal HUP";
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT HUP
             f_kill 'HUP' $pid;;
         002) erm="${ert}: Terminated by signal INT";
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT INT
             kill -INT $pid;;
         003) erm="${ert}: Terminated by signal QUIT";
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT QUIT
             f_kill 'QUIT' $pid;;
         006) erm="${ert}: Terminated by signal SIGABRT";
@@ -256,8 +256,8 @@ function f_print_separator
             echo ""
             echo ""
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT SIGABRT
             f_Skill 'SIGABRT' $PID;;
         011) erm="${ert}: Terminated by signal SIGSEGV";
@@ -271,15 +271,15 @@ function f_print_separator
             echo ""
             echo ""
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT SIGSEGV
             f_kill 'SIGSEGV' $PID;;
         015) erm="${ert}: Terminated by signal TERM";
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT TERM
             f_kill 'TERM' $pid;;
         124) erm="${ert}: No command line arguments supplied";;
@@ -288,8 +288,8 @@ function f_print_separator
         127) erm="${ert}: Script exiting!";
             [[ ! -z tmpfile ]] && rm -f ${tmpfile}
             echo "$erm"
-			echo "@@@@@@@@@@@@@@@@@@@@"
-			echo ""
+            echo "@@@@@@@@@@@@@@@@@@@@"
+            echo ""
             trap '-' EXIT
             exit;;
             #f_kill 'EXIT' $PID;; ## Bug to fix, loop on exit
