@@ -3,7 +3,7 @@
 # Script to [template]
 # Copyright (C) 2013 Olivier Contant - All Rights Reserved
 # Permission to copy and modify is granted
-# Last revised 2013/12/13
+# Last revised 2017/01/05
 
 #set -e # Stop and exit on error if not handled by the scripts
 
