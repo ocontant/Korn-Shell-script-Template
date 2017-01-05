@@ -5,18 +5,18 @@
 # Copyright (C) 2013 Olivier Contant - All Rights Reserved
 # Permission to copy and modify is granted
 #
-# https://github.com/ocontant 
+# https://github.com/ocontant
 #
 # Last revised 2015/05/04
 #
 ################################################################
 set -e # Stop and exit on error if not handled by the scripts
 
-#	
+#
 # -----------------------------------------------------------------------------
 #
-#   usage - Display the program usage 
-# 
+#   usage - Display the program usage
+#
 # -----------------------------------------------------------------------------
 
 function f_usagemsg {
@@ -26,11 +26,11 @@ Program: your_function
 Place a brief description ( < 255 chars ) of your shell
 function here.
 
-Usage: ${1##*/} [-?(a)(b)DvV] 
+Usage: ${1##*/} [-?(a)(b)DvV]
 ** Where ( ) are mandatory options
 
   Where:
-        -D = Debug mode - Display special text for debugging purpose
+    -D = Debug mode - Display special text for debugging purpose
     -v = Verbose mode - displays your_function function info
     -V = Very Verbose Mode - debug output displayed
     -? = Help - display this message
@@ -41,31 +41,31 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 }
 
 ################################################################
-#### 
+####
 #### Description:
-#### 
+####
 #### Place a full text description of your shell function here.
-#### 
+####
 #### Assumptions:
-#### 
+####
 #### Provide a list of assumptions your shell function makes,
 #### with a description of each assumption.
-#### 
+####
 #### Dependencies:
-#### 
+####
 #### Provide a list of dependencies your shell function has,
 #### with a description of each dependency.
-#### 
+####
 #### Products:
-#### 
+####
 #### Provide a list of output your shell function produces,
 #### with a description for each.
-#### 
+####
 #### Configured Usage:
-#### 
+####
 #### Describe how your shell function should be used.
-#### 
-#### 
+####
+####
 ################################################################
 
 
@@ -82,19 +82,19 @@ Author: Olivier Contant (contant.olivier@gmail.com)
   typeset PID=$$							# The main process ID instance of our script
   typeset rc=""  								# Return Command executing code handling
   typeset tmpfile="${TMPDIR:-/tmp}/prog.$$" # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
-  
-  
-  
+
+
+
  ### If we need logfile
  # exec >> $logfile
- 
+
 # -----------------------------------------------------------------------------
 #
 # Function Definitions
 #
 # -----------------------------------------------------------------------------
 
-function f_get_parameter 
+function f_get_parameter
 {
   while getopts ":a:bDhvV" OPTION
   do
@@ -110,12 +110,12 @@ function f_get_parameter
           '#') f_usagemsg "${0}" && return 1 ;;
       esac
   done
-   
+
   shift $(( ${OPTIND} - 1 ))
-  
+
   	(( veryverb == TRUE )) && set -x
 	(( verbose  == TRUE )) && print -u 2 "# Version........: ${version}" && exit 0
-	
+
   return 0
 }
 
@@ -124,7 +124,7 @@ function f_get_parameter
 #   Simple function to display separator character on the size of terminal width
 #
 # -----------------------------------------------------------------------------
-function f_print_separator 
+function f_print_separator
 {
         for i in `seq 1 79`;do printf '*'; done
         printf '%s\n' "*"
@@ -139,13 +139,13 @@ function f_error #$1=errortype&errornum&message
 {
     # [[ ! -z "$debug" ]] && set -x
 
-    ### Feel free to add your own custom error message 
+    ### Feel free to add your own custom error message
     ### Don't forget to add a trap in next section for your custom error number
 
-    ### Logic is 
+    ### Logic is
     ###  - All error that are received by trap need to exit inside the function (case area) to simulate the normal behavior of an exiting
-    ###  - All error that are called directly in the code must do an exit after the function call. In order to have the 
-    ###    flexibility to create specific step before exiting the script.     
+    ###  - All error that are called directly in the code must do an exit after the function call. In order to have the
+    ###    flexibility to create specific step before exiting the script.
 
     dtg=`date +%D\ %H:%M:%S`
     if [[ ! "$1" = "" ]];then
@@ -201,7 +201,7 @@ function f_error #$1=errortype&errornum&message
     echo ""
     echo ""
 
-	
+
 	######## Example of usage of error function
 	### 1. This example should be included in all script at the very end to show a normal run exit message.
 	###    f_error INFO 000 (at end of script after normal execution
@@ -220,7 +220,7 @@ function f_error #$1=errortype&errornum&message
 	### Make sure when trapping exiting signal to kill the process also or the process will hang
 	### [[ ! -z tmpfile ]] && rm -f ${tmpfile}
 	###	kill -[SIG_TRAPPED] $PID;;
-}	
+}
 
 
 # -----------------------------------------------------------------------------
@@ -230,18 +230,18 @@ function f_error #$1=errortype&errornum&message
 # -----------------------------------------------------------------------------
 
 ### Trapping exiting code ###
-trap 'f_error ERRROR 001 HUP' HUP 
-trap 'f_error ERRROR 002 INT' INT 
+trap 'f_error ERRROR 001 HUP' HUP
+trap 'f_error ERRROR 002 INT' INT
 trap 'f_error ERRROR 003 QUIT' QUIT
 trap 'f_error ERRROR 015 TERM' TERM
-# trap 'f_error EXITING 127 EXIT' EXIT 		## Generate too much garbage usually and loop. 
+# trap 'f_error EXITING 127 EXIT' EXIT 		## Generate too much garbage usually and loop.
 
 
 # -----------------------------------------------------------------------------
 #
-#   LOADING OUR PARAMETER PARSER 
+#   LOADING OUR PARAMETER PARSER
 #
-# -----------------------------------------------------------------------------	
+# -----------------------------------------------------------------------------
 
 ### Validate if we have at least one parameter for our getops
 if [[ $# -eq 0 ]]
@@ -249,9 +249,9 @@ then
 	f_error ERROR 124 "ERROR 124 No command line arguments supplied"
 	f_usagemsg "${0}"
 	exit 124
-fi	
+fi
 
-### Pass our parameter and do validation 
+### Pass our parameter and do validation
 f_get_parameter "${@}"
 
 #
@@ -265,9 +265,9 @@ f_get_parameter "${@}"
 
 # -----------------------------------------------------------------------------
 #
-#   THE REST OF THE ALGORYTHME GOES HERE  
+#   THE REST OF THE ALGORYTHME GOES HERE
 #
-# -----------------------------------------------------------------------------	
+# -----------------------------------------------------------------------------
 
 ### Display some environment variable
 [[ -f $logfile ]] && echo "Log will be written in ${logfile}"
@@ -278,12 +278,7 @@ echo "The pid of this process is $$"
 
 # -----------------------------------------------------------------------------
 #
-#   If everything else ran successfully 
+#   If everything else ran successfully
 #
-# -----------------------------------------------------------------------------	
+# -----------------------------------------------------------------------------
 f_error INFO 000 "${scriptname} executed succesfully"
-
-
-
-
-

@@ -7,11 +7,11 @@
 
 #set -e # Stop and exit on error if not handled by the scripts
 
-#   
+#
 # -----------------------------------------------------------------------------
 #
-#   usage - Display the program usage 
-# 
+#   usage - Display the program usage
+#
 # -----------------------------------------------------------------------------
 function f_usagemsg {
   print "
@@ -20,7 +20,7 @@ Program: your_function
 Place a brief description ( < 255 chars ) of your shell
 function here.
 
-Usage: ${1##*/} [-?(a)(b)DvV] 
+Usage: ${1##*/} [-?(a)(b)DvV]
 ** Where ( ) are mandatory options
 
   Where:
@@ -37,7 +37,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 ###
 # Source function library for RedHat based system..
 . /etc/rc.d/init.d/functions
-# 
+#
 # Function description available in /etc/rc.d/init.d/functions
 # success/failure: Logging functions to track any errors that may occour.
 # echo_failure/echo_success: Outputs either [FAILED] or [OK] in Red or Green lettering on the right of the terminal
@@ -46,19 +46,19 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 ###
 
 ################################################################
-#### 
-#### Description:
-#### 
-#### 
-#### Assumptions: 
-#### 
-#### 
-#### Dependencies:
-####  
 ####
-#### Output : 
-#### 
-#### 
+#### Description:
+####
+####
+#### Assumptions:
+####
+####
+#### Dependencies:
+####
+####
+#### Output :
+####
+####
 ################################################################
 
 
@@ -67,25 +67,69 @@ Author: Olivier Contant (contant.olivier@gmail.com)
    scriptname=`basename $0`
    true='1'
    false='0'
-   verbose="${FALSE}"
-   veryverb="${FALSE}"
-   debug="${FALSE}"                             # Use with (( DEBUG == TRUE )) && echo "DEBUG TEXT"
+   verbose="${false}"
+   veryverb="${false}"
+   debug="${false}"                             # Use with (( DEBUG == TRUE )) && echo "DEBUG TEXT"
    logfile=''                                   # To define the location and filename of where we want to log the execution of this script
    errorfile=''                                 # To define the location and filename of where we want to log the execution of this script
    pid=$$                                       # The main process ID instance of our script
    rc=''                                        # Return Command executing code handling
    tmpfile=${TMPDIR:-/tmp}/prog.$$              # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
    counter=0
-  
+
  ### If we need global logfile
 #exec >> $LOGFILE
+
+
+# -----------------------------------------------------------------------------
+#
+# Function Definitions
+#
+# -----------------------------------------------------------------------------
+
+function f_get_parameter
+{
+ while getopts ":a:bDhvV" OPTION
+ do
+     case "${OPTION}" in
+   'a') required_optarg=${OPTARG};;
+   'b') b_var="${TRUE}";;
+   'D') debug="${TRUE}";;
+   'h') f_usagemsg ;;
+         'v') verbose="${TRUE}";;
+         'V') veryverb="${TRUE}";;
+         '?') f_usagemsg "${0}" && return 1 ;;
+         ':') f_usagemsg "${0}" && return 1 ;;
+         '#') f_usagemsg "${0}" && return 1 ;;
+     esac
+ done
+
+ shift $(( ${OPTIND} - 1 ))
+
+   (( veryverb == TRUE )) && set -x
+ (( verbose  == TRUE )) && print -u 2 "# Version........: ${version}" && exit 0
+
+ return 0
+}
+
+# -----------------------------------------------------------------------------
+#
+#   Simple function to display separator character on the size of terminal width
+#
+# -----------------------------------------------------------------------------
+function f_print_separator
+{
+        for i in `seq 1 79`;do printf '*'; done
+        printf '%s\n' "*"
+}
+
 # -----------------------------------------------------------------------------
 #
 #   log_success_msg - Print nice success message
 #
 # -----------------------------------------------------------------------------
  log_success_msg () {
-   success "$*"; echo -e "\r\n"$*"\r\n"; 
+   success "$*"; echo -e "\r\n"$*"\r\n";
 
 }
 
@@ -109,20 +153,20 @@ Author: Olivier Contant (contant.olivier@gmail.com)
 
 # -----------------------------------------------------------------------------
 #
-#   f_kill - Kill process 
+#   f_kill - Kill process
 #
 # -----------------------------------------------------------------------------
  f_kill  () #$1=KILLSIG $2=PID
 {
     KILLSIG=$1
-    PID=$2  
+    PID=$2
     counter=0
-    
+
     if [[ `ps -p $PID` ]]; then
         ## SENDING KILL SIGNAL.
-        echo -ne $"Stopping $SCRIPTNAME."   
+        echo -ne $"Stopping $SCRIPTNAME."
         kill -$KILLSIG $PID
-        
+
         while [[ $counter -le 4 ]]
         do
             if [[ $counter -ne 4 ]]; then
@@ -136,7 +180,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
                 fi
             else
                 log_failure_msg "Failed to terminated the process."
-                
+
                 ## SENDING KILL SIGNAL.
                 echo -ne "Killing SIGKILL $SCRIPTNAME."
                 kill -9 $PID
@@ -149,8 +193,8 @@ Author: Olivier Contant (contant.olivier@gmail.com)
             fi
         done
     else
-        echo "INFO: $SCRIPTNAME doesn't seem to be running at this moment. Cannot find PID." 
-    fi  
+        echo "INFO: $SCRIPTNAME doesn't seem to be running at this moment. Cannot find PID."
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -161,7 +205,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
  f_error () #$1=errortype&errornum&message
 {
     # [[ ! -z "$DEBUG" ]] && set -x
-     
+
     dtg=`date +%D\ %H:%M:%S`
     if [[ ! "$1" = "" ]];then
         errortype=$1; shift
@@ -258,8 +302,8 @@ Author: Olivier Contant (contant.olivier@gmail.com)
     echo ""
     echo ""
 
-    
-    ######## Example of usage of error 
+
+    ######## Example of usage of error
     ### 1. f_error INFO 000 (at end of script after normal execution
     ###
     ### 2. f_error ERROR 124
@@ -271,7 +315,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
     ### Make sure when trapping exiting signal to kill the process also
     ### [[ ! -z tmpfile ]] && rm -f ${tmpfile}
     ### kill -[SIG_TRAPPED] $PID;;
-}   
+}
 
 # -----------------------------------------------------------------------------
 #
@@ -291,7 +335,7 @@ f_utc_to_est ()
 #   f_send_email - Send email HTML format
 #
 # -----------------------------------------------------------------------------
-f_send_email () #$1=mailfrom $2=mailto $3=subject $4=body $5=attach 
+f_send_email () #$1=mailfrom $2=mailto $3=subject $4=body $5=attach
 {
 	mailfrom=$1
 	mailto=$2
@@ -354,5 +398,51 @@ trap 'f_error ERROR 011 SIGSEGV; trap - SIGSEGV' SIGSEGV
 trap 'f_error ERROR 015 TERM; trap - TERM' TERM
 #trap 'f_error ERROR 000 EXIT; trap - EXIT' EXIT
 
+# -----------------------------------------------------------------------------
+#
+#   LOADING OUR PARAMETER PARSER
+#
+# -----------------------------------------------------------------------------
 
+### Validate if we have at least one parameter for our getops
+if [[ $# -eq 0 ]]
+then
+	f_error ERROR 124 "ERROR 124 No command line arguments supplied"
+	f_usagemsg "${0}"
+	exit 124
+fi
+
+### Pass our parameter and do validation
+f_get_parameter "${@}"
+
+#
+#### Place any passed arguments error checking statements here
+#### If an error is detected, print a message to
+#### standard error.  Then exit with the error code 125 and display usagemsg
+####
+#### Ex.:  [[ -z $required_optarg ]] && f_error ERROR 125 "Description Error" && echo "-a value is: ${required_optarg}" && exit 125
+#
+
+
+# -----------------------------------------------------------------------------
+#
+#   THE REST OF THE ALGORYTHME GOES HERE
+#
+# -----------------------------------------------------------------------------
+
+### Display some environment variable
+[[ -f $logfile ]] && echo "Log will be written in ${logfile}"
+[[ -f $errorfile ]] && echo "error log will be written in ${errorfile}"
+[[ -f $tmpfile ]] && echo "tmpfile is located in ${tmpfile}"
+echo "The pid of this process is $$"
+
+###############################
 #### Write your code here #####
+###############################
+
+# -----------------------------------------------------------------------------
+#
+#   If everything else ran successfully
+#
+# -----------------------------------------------------------------------------
+f_error INFO 000 "${scriptname} executed succesfully"
