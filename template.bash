@@ -396,7 +396,9 @@ trap 'f_error ERROR 003 QUIT; trap - QUIT' QUIT
 trap 'f_error ERROR 006 SIGABRT; trap - SIGABRT' SIGABRT
 trap 'f_error ERROR 011 SIGSEGV; trap - SIGSEGV' SIGSEGV
 trap 'f_error ERROR 015 TERM; trap - TERM' TERM
-#trap 'f_error ERROR 000 EXIT; trap - EXIT' EXIT
+
+#Example trap for when you want to exit using the exit command.  It will trap any exit command to display a meaningful message:
+# trap 'f_error ERROR 000 EXIT; trap - EXIT' EXIT
 
 # -----------------------------------------------------------------------------
 #
