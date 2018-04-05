@@ -25,6 +25,7 @@ Usage: ${1##*/} [-?(a)(b)DvV]
 
   Where:
     -D = Debug mode - Display special text for debugging purpose
+    -h = Help - Display this help message
     -v = Verbose mode - displays your_function function info
     -V = Very Verbose Mode - debug output displayed
     -? = Help - display this message
