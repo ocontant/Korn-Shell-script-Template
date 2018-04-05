@@ -69,7 +69,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
    false='0'
    verbose="${false}"
    veryverb="${false}"
-   debug="${false}"                             # Use with (( DEBUG == TRUE )) && echo "DEBUG TEXT"
+   debug="${false}"                             # Use with (( DEBUG == true )) && echo "DEBUG TEXT"
    logfile=''                                   # To define the location and filename of where we want to log the execution of this script
    errorfile=''                                 # To define the location and filename of where we want to log the execution of this script
    pid=$$                                       # The main process ID instance of our script
@@ -91,23 +91,23 @@ function f_get_parameter
 {
  while getopts ":a:bDhvV" OPTION
  do
-     case "${OPTION}" in
-   'a') required_optarg=${OPTARG};;
-   'b') b_var="${TRUE}";;
-   'D') debug="${TRUE}";;
-   'h') f_usagemsg ;;
-         'v') verbose="${TRUE}";;
-         'V') veryverb="${TRUE}";;
-         '?') f_usagemsg "${0}" && return 1 ;;
-         ':') f_usagemsg "${0}" && return 1 ;;
-         '#') f_usagemsg "${0}" && return 1 ;;
-     esac
+   case "${OPTION}" in
+     'a') required_optarg=${OPTARG};;
+     'b') b_var="${true}";;
+     'D') debug="${true}";;
+     'h') f_usagemsg ;;
+     'v') verbose="${true}";;
+     'V') veryverb="${true}";;
+     '?') f_usagemsg "${0}" && return 1 ;;
+     ':') f_usagemsg "${0}" && return 1 ;;
+     '#') f_usagemsg "${0}" && return 1 ;;
+   esac
  done
 
  shift $(( ${OPTIND} - 1 ))
 
-   (( veryverb == TRUE )) && set -x
- (( verbose  == TRUE )) && print -u 2 "# Version........: ${version}" && exit 0
+   (( veryverb == true )) && set -x
+ (( verbose  == true )) && print -u 2 "# Version........: ${version}" && exit 0
 
  return 0
 }
