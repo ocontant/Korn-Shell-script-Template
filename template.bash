@@ -75,7 +75,7 @@ Author: Olivier Contant (contant.olivier@gmail.com)
    errorfile=''                                 # To define the location and filename of where we want to log the execution of this script
    pid=$$                                       # The main process ID instance of our script
    rc=''                                        # Return Command executing code handling
-   tmpfile=${TMPDIR:-/tmp}/prog.$$              # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
+   tmpfile=${tmpdir:-/tmp}/prog.$$              # temp filename will be /tmp/prog.$$.X or variable name $tmpfile.X
    counter=0
 
  ### If we need global logfile
